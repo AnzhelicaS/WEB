@@ -1,0 +1,35 @@
+import sys
+import os
+
+from PyQt6 import uic
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtWidgets import QMainWindow, QLabel, QApplication
+from utilities2 import get_static_api_image
+
+
+class MainWindow(QMainWindow):
+    map_label: QLabel
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        uic.loadUi('window_for_map.ui', self)
+        self.map = [2.2944813, 48.8583701]
+
+        self.refresh_map()
+
+    def refresh_map(self):
+        response = get_static_api_image(self.map)
+        if response:
+            with open('tmp.png', mode='wb') as tmp:
+                tmp.write(response)
+            pixmap = QPixmap()
+            pixmap.load('tmp.png')
+            os.remove('tmp.png')
+            self.map_label.setPixmap(pixmap)
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = MainWindow()
+    ex.show()
+    sys.exit(app.exec())
