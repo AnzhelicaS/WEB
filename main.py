@@ -30,10 +30,19 @@ class MainWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         key = event.key()
+        n = 0.01 if self.z in range(13, 17) else 0.1 if self.z in range(8, 12) else 1 if range(3, 7) else 0
         if key == Qt.Key.Key_PageUp:
-            self.z += 1 if self.z < 17 else 0
+            self.z += 1 if self.z < 19 else 0
         elif key == Qt.Key.Key_PageDown:
             self.z -= 1 if self.z > 6 else 0
+        elif key == Qt.Key.Key_Left:
+            self.map[0] -= n
+        elif key == Qt.Key.Key_Right:
+            self.map[0] += n
+        elif key == Qt.Key.Key_Up:
+            self.map[1] += n
+        elif key == Qt.Key.Key_Down:
+            self.map[1] -= n
         self.refresh_map()
 
 
