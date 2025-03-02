@@ -4,22 +4,27 @@ import os
 from PyQt6 import uic
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QMainWindow, QLabel, QApplication
+from PyQt6.QtWidgets import QMainWindow, QLabel, QApplication, QRadioButton
 from utilities2 import get_static_api_image
 
 
 class MainWindow(QMainWindow):
     map_label: QLabel
+    dark_theme: QRadioButton
+    light_theme: QRadioButton
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('window_for_map.ui', self)
         self.map = [2.2944813, 48.8583701]
         self.z = 12
+        self.theme = 'light'
         self.refresh_map()
+        self.dark_theme.clicked.connect(self.change_theme)
+        self.light_theme.clicked.connect(self.change_theme)
 
     def refresh_map(self):
-        response = get_static_api_image(self.map, self.z)
+        response = get_static_api_image(self.map, self.z, self.theme)
         if response:
             with open('tmp.png', mode='wb') as tmp:
                 tmp.write(response)
@@ -43,6 +48,10 @@ class MainWindow(QMainWindow):
             self.map[1] += n
         elif key == Qt.Key.Key_Down:
             self.map[1] -= n
+        self.refresh_map()
+
+    def change_theme(self):
+        self.theme = 'dark' if self.theme == 'light' else 'light'
         self.refresh_map()
 
 
