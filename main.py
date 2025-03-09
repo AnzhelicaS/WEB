@@ -23,11 +23,13 @@ class MainWindow(QMainWindow):
         super().__init__(*args, **kwargs)
         uic.loadUi('window_for_map.ui', self)
         self.map = [2.2944813, 48.8583701]
+        self.flag = False
+        self.point = '0,0'
         self.z = 12
         self.theme = 'light'
         self.refresh_map()
-        self.dark_theme.clicked.connect(self.change_theme)
-        self.light_theme.clicked.connect(self.change_theme)
+        self.dark_theme.clicked.connect(self.change_theme_on_dark)
+        self.light_theme.clicked.connect(self.change_theme_on_light)
         self.search_button.clicked.connect(self.search_address)
         self.lineEdit.setPlaceholderText('Введит адрес')
 
@@ -35,8 +37,8 @@ class MainWindow(QMainWindow):
         self.statusbar.move(20, 500)
         self.statusbar.resize(400, 30)
 
-    def refresh_map(self, flag=False):
-        response = get_static_api_image(self.map, self.z, self.theme, True if flag else False)
+    def refresh_map(self):
+        response = get_static_api_image(self.map, self.z, self.theme, self.point, self.flag)
         if response:
             with open('tmp.png', mode='wb') as tmp:
                 tmp.write(response)
@@ -65,8 +67,12 @@ class MainWindow(QMainWindow):
                 self.map[1] -= n
             self.refresh_map()
 
-    def change_theme(self):
-        self.theme = 'dark' if self.theme == 'light' else 'light'
+    def change_theme_on_dark(self):
+        self.theme = 'dark'
+        self.refresh_map()
+
+    def change_theme_on_light(self):
+        self.theme = 'light'
         self.refresh_map()
 
     def search_address(self):
@@ -85,7 +91,9 @@ class MainWindow(QMainWindow):
                 t = features[0]['GeoObject'] if features else None
                 coords = t["Point"]["pos"]
                 self.map = [float(coords.split()[0]), float(coords.split()[1])]
-                self.refresh_map(True)
+                self.flag = True
+                self.point = self.map[:]
+                self.refresh_map()
             except:
                 self.statusbar.showMessage('Вы ввели неправельный адрес')
         else:
